@@ -15,7 +15,7 @@ class ExRatesService {
     private $cbrExchangeRate;
     private $rbcExchangeRate;
 
-    public function __construct($from = 'USD', $to = 'RUR', $attempts)
+    public function __construct($from = 'USD', $to = 'RUR', $attempts = 10)
     {
         if ($from === $to) {
             throw new Exception('There is no point in finding ratio of the same currency, it will always be 1!');
