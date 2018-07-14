@@ -12,10 +12,10 @@ class ExRatesService {
 
     private $from;
     private $to;
-    private $cbrExchangeRate;
-    private $rbcExchangeRate;
+    private $cbrExchangeRate = null;
+    private $rbcExchangeRate = null;
 
-    public function __construct($from = 'USD', $to = 'RUR', $attempts = 10)
+    public function __construct($from = 'USD', $to = 'RUR')
     {
         if ($from === $to) {
             throw new Exception('There is no point in finding ratio of the same currency, it will always be 1!');
@@ -23,28 +23,33 @@ class ExRatesService {
 
         $this->from = $from;
         $this->to = $to;
+
+    }
+
+    public function fetchData($attempts = 10){
+
         $xmlFrom = null;
         $xmlTo = null;
 
         // request urls
-        $urlToJson = 'https://cash.rbc.ru/cash/json/converter_currency_rate/?currency_from=' . $from . '&currency_to=' . $to . '&source=cbrf&sum=1&date=';
+        $urlToJson = 'https://cash.rbc.ru/cash/json/converter_currency_rate/?currency_from=' . $this->from . '&currency_to=' . $this->to . '&source=cbrf&sum=1&date=';
         $urlToXml = 'http://www.cbr.ru/scripts/XML_daily_eng.asp?date_req=' . date("d/m/Y");
 
-        // preparing xml for xpath
+        // get currency value from the xml
         // making $attempts of attempts to get the xml in case it is not received on the first request
         for ($i = 0; $i < $attempts; $i++){
             if ($tmpXml = file_get_contents($urlToXml)){
                 $tmpXml = simplexml_load_string($tmpXml);
 
-                // http://www.cbr.ru compares all currencies to RUR by default and does not contain RUR currency in the provided xml. That's why if $from or $to is RUR they are set to 1
-                if($from != 'RUR'){
-                    $xmlFrom = $tmpXml->xpath('/ValCurs/Valute/CharCode[.="' . $from . '"]/following-sibling::Value');
+                // http://www.cbr.ru compares all currencies to RUR by default and does not contain RUR currency in the provided xml. That's why if $this->from or $this->to is RUR they are set to 1
+                if($this->from != 'RUR'){
+                    $xmlFrom = $tmpXml->xpath('/ValCurs/Valute/CharCode[.="' . $this->from . '"]/following-sibling::Value');
                     $xmlFrom = $xmlFrom[0][0];
                 } else {
                     $xmlFrom = 1;
                 }
-                if($to != 'RUR'){
-                    $xmlTo = $tmpXml->xpath('/ValCurs/Valute/CharCode[.="' . $to . '"]/following-sibling::Value');
+                if($this->to != 'RUR'){
+                    $xmlTo = $tmpXml->xpath('/ValCurs/Valute/CharCode[.="' . $this->to . '"]/following-sibling::Value');
                     $xmlTo = $xmlTo[0][0];
                 } else {
                     $xmlTo = 1;

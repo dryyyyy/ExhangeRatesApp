@@ -14,6 +14,14 @@ class StoreRatesCommand extends ContainerAwareCommand
 {
     protected static $defaultName = 'app:storeRates';
 
+    private $rates;
+    public function __construct(ExRatesService $rates)
+    {
+        $this->rates = $rates;
+
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -30,8 +38,7 @@ class StoreRatesCommand extends ContainerAwareCommand
         $doctrine = $this->getContainer()->get('doctrine');
         $entityManager = $doctrine->getEntityManager();
 
-        $rates = new ExRatesService();
-        $rates->putToDB($entityManager);
+        $this->rates->putToDB($entityManager);
 
         $io->success('New values have been added to DB.');
     }

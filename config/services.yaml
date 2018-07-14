@@ -3,9 +3,9 @@
 parameters:
     locale: 'en'
 
-    app.currency.from: 'USD'
-    app.currency.to: 'RUR'
-    app.attempts: 10
+    app.currency_from: 'RUR'
+    app.currency_to: 'EUR'
+    app.attempts: 0
 
 services:
     # default configuration for services in *this* file
@@ -30,7 +30,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    app.exRatesService:
-      class: App\Service\ExRatesService
-      arguments: ['%app.currency.from%', '%app.currency.to%', '%app.attempts%']
+
+    App\Service\ExRatesService:
       public: true
+      arguments:
+        $from: '%app.currency_from%'
+        $to: '%app.currency_to%'
+      calls:
+        - method: fetchData
+          arguments:
+            - '%app.attempts%'

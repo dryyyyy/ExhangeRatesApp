@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Дима
- * Date: 04.07.2018
- * Time: 22:46
- */
 
 namespace App\Entity;
 
@@ -60,9 +54,12 @@ class ExchangeRate
 
     /**
      * @param $currency
+     * @return $this
      */
     public function setFromCurrency($currency){
         $this->fromCurrency = $currency;
+
+        return $this;
     }
 
     /**
@@ -74,9 +71,12 @@ class ExchangeRate
 
     /**
      * @param $currecy
+     * @return $this
      */
     public function setToCurrency($currency){
         $this->toCurrency = $currency;
+
+        return $this;
     }
 
     /**
@@ -88,9 +88,12 @@ class ExchangeRate
 
     /**
      * @param $ratio
+     * @return $this
      */
     public function setRatio($ratio){
         $this->ratio = $ratio;
+
+        return $this;
     }
 
     /**
@@ -102,8 +105,11 @@ class ExchangeRate
 
     /**
      * @param $date
+     * @return $this
      */
     public function setDate($date){
         $this->date = $date;
+
+        return $this;
     }
 }
