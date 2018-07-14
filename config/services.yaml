@@ -5,7 +5,7 @@ parameters:
 
     app.currency_from: 'RUR'
     app.currency_to: 'EUR'
-    app.attempts: 0
+    app.attempts: 50
 
 services:
     # default configuration for services in *this* file
