@@ -24,7 +24,8 @@ class ExRatesService {
      * ExRatesService constructor.
      * @param string $from
      * @param string $to
-     * @param EntityManager $entityManager
+     * @param EntityManagerInterface $entityManager
+     * @param SerializerInterface $serializer
      */
     public function __construct(string $from,
                                 string $to,
@@ -43,6 +44,7 @@ class ExRatesService {
 
     /**
      * @param int $attempts
+     * @return $this
      */
     public function fetchData($attempts = 10){
 
@@ -79,10 +81,7 @@ class ExRatesService {
                 break;
             }
         }
-        // $i == $attempts means www.cbr.ru does not respond to the request 'http://www.cbr.ru/scripts/XML_daily_eng.asp?date_req=' . date("d/m/Y")
-        if ($i == $attempts) {
-            throw new Exception('Cannot get data from ' . $urlToXml);
-        }
+
 
         // convert json into a php object and get the currency value from the object
         // making $attempts of attempts to get the json in case it is not received on the first request
@@ -93,9 +92,8 @@ class ExRatesService {
             }
         }
 
-        // $i == $attempts means cash.rbc.ru does not respond to the request 'https://cash.rbc.ru/cash/json/converter_currency_rate/?currency_from=' . $from . '&currency_to=' . $to . '&source=cbrf&sum=1&date='
-        if ($i == $attempts) {
-            throw new Exception('Cannot get data from ' . $urlToJson);
+        if($this->cbrExchangeRate == null || $this->rbcExchangeRate == null){
+            throw new Exception('Cannot fetch data from one of the Exchange Rates Banks');
         }
 
         return $this;

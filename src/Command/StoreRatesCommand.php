@@ -31,7 +31,13 @@ class StoreRatesCommand extends ContainerAwareCommand
         $io = new SymfonyStyle($input, $output);
 
         $this->rates->fetchData();
-        $this->rates->sendTodaysRatesToDB();
+        try{
+            $result = $this->rates->fetchData();
+        } catch (\Exception $ex) {
+            $result = ['error' => $ex->getMessage()];
+        }
+
+        $result->sendTodaysRatesToDB();
 
         $io->success('New values have been added to DB.');
     }

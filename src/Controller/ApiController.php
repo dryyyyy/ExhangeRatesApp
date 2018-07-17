@@ -13,7 +13,14 @@ class ApiController extends Controller
      */
     public function showItem($date){
         $rates = $this->get('App\Service\ExRatesService');
-        $response = new JsonResponse($rates->fetch($date), 200, [], true);
+
+        try{
+            $result = $rates->fetch($date);
+        }catch (\Exception $ex) {
+            $result = ['error' => $ex->getMessage()];
+        }
+
+        $response = new JsonResponse($result, 200, [], true);
 
         return $response;
     }
