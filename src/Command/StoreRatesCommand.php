@@ -10,9 +10,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class StoreRatesCommand extends ContainerAwareCommand
 {
-    protected static $defaultName = 'app:storeRates';
+    protected static $defaultName = 'app:store_rates';
 
     private $rates;
+
     public function __construct(ExRatesService $rates)
     {
         $this->rates = $rates;
@@ -29,10 +30,8 @@ class StoreRatesCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        $doctrine = $this->getContainer()->get('doctrine');
-        $entityManager = $doctrine->getEntityManager();
-
-        $this->rates->putToDB($entityManager);
+        $this->rates->fetchData();
+        $this->rates->sendTodaysRatesToDB();
 
         $io->success('New values have been added to DB.');
     }

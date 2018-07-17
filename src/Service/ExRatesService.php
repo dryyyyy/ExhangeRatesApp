@@ -1,21 +1,35 @@
 <?php
 namespace App\Service;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use App\Entity\ExchangeRate;
-use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
+/**
+ * Class ExRatesService
+ * @package App\Service
+ */
 class ExRatesService {
 
-    private $from;
-    private $to;
+    private $from = null;
+    private $to = null;
     private $cbrExchangeRate = null;
     private $rbcExchangeRate = null;
+    private $entityManager;
+    private $serializer;
 
-    public function __construct($from = 'USD', $to = 'RUR')
+    /**
+     * ExRatesService constructor.
+     * @param string $from
+     * @param string $to
+     * @param EntityManager $entityManager
+     */
+    public function __construct(string $from,
+                                string $to,
+                                EntityManagerInterface $entityManager,
+                                SerializerInterface $serializer)
     {
         if ($from === $to) {
             throw new Exception('There is no point in finding ratio of the same currency, it will always be 1!');
@@ -23,9 +37,13 @@ class ExRatesService {
 
         $this->from = $from;
         $this->to = $to;
-
+        $this->entityManager = $entityManager;
+        $this->serializer = $serializer;
     }
 
+    /**
+     * @param int $attempts
+     */
     public function fetchData($attempts = 10){
 
         $xmlFrom = null;
@@ -79,6 +97,8 @@ class ExRatesService {
         if ($i == $attempts) {
             throw new Exception('Cannot get data from ' . $urlToJson);
         }
+
+        return $this;
     }
 
     /**
@@ -105,26 +125,27 @@ class ExRatesService {
     /**
      *
      */
-    public function putToDB(EntityManagerInterface $entityManager){
-        $item = new ExchangeRate();
-        $item->setFromCurrency($this->from);
-        $item->setToCurrency($this->to);
-        $item->setRatio($this->getAverage());
-        $item->setDate(date("d-m-Y"));
+    public function sendTodaysRatesToDB(){
+        $exchangeRate = new ExchangeRate();
+        $exchangeRate->setFromCurrency($this->from);
+        $exchangeRate->setToCurrency($this->to);
+        $exchangeRate->setRatio($this->getAverage());
+        $exchangeRate->setDate(date("d-m-Y"));
 
-        $entityManager->persist($item);
-        $entityManager->flush();
+        $this->entityManager->persist($exchangeRate);
+        $this->entityManager->flush();
+
+        return $this;
     }
 
-    public function fetch(EntityManagerInterface $entityManager, $date){
-        $repository = $entityManager->getRepository(ExchangeRate::class);
+    /**
+     * @param $date
+     * @return bool|float|int|string
+     */
+    public function fetch($date){
+        $repository = $this->entityManager->getRepository(ExchangeRate::class);
         $item = $repository->findOneBy(['date' => $date]);
-
-        $encoder = array(new JsonEncoder());
-        $normalizer = array(new ObjectNormalizer());
-        $serializer = new Serializer($normalizer, $encoder);
-
-        $jsonContent = $serializer->serialize($item, 'json');
+        $jsonContent = $this->serializer->serialize($item, 'json');
         return $jsonContent;
     }
 }

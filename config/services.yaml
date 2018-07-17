@@ -3,8 +3,8 @@
 parameters:
     locale: 'en'
 
-    app.currency_from: 'RUR'
-    app.currency_to: 'EUR'
+    app.currency_from: 'EUR'
+    app.currency_to: 'RUR'
     app.attempts: 50
 
 services:
@@ -36,7 +36,9 @@ services:
       arguments:
         $from: '%app.currency_from%'
         $to: '%app.currency_to%'
-      calls:
-        - method: fetchData
-          arguments:
-            - '%app.attempts%'
+        $entityManager: "@doctrine.orm.entity_manager"
+#        $serializer: "@symfony.component.serializer"
+#      calls:
+#        - method: fetchData
+#          arguments:
+#            - '%app.attempts%'
