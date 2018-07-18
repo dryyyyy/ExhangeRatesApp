@@ -47,8 +47,8 @@ class ExRatesService {
      */
     public function fetchData($attempts = 10){
 
-        $cbrObj = new CbrSDK($this->from, $this->to);
-        $rbcObj = new RbcSDK($this->from, $this->to);
+        $cbrObj = new CbrSDK();
+        $rbcObj = new RbcSDK();
 
         $this->cbrExchangeRate = $cbrObj->fetch($this->from, $this->to, $attempts);
         $this->rbcExchangeRate = $rbcObj->fetch($this->from, $this->to, $attempts);
@@ -97,7 +97,7 @@ class ExRatesService {
      * @param $date
      * @return bool|float|int|string
      */
-    public function fetch($date){
+    public function fetchFromDB($date){
         $repository = $this->entityManager->getRepository(ExchangeRate::class);
         $item = $repository->findOneBy(['date' => $date]);
         $jsonContent = $this->serializer->serialize($item, 'json');

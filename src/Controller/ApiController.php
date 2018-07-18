@@ -15,7 +15,7 @@ class ApiController extends Controller
         $rates = $this->get('App\Service\ExRatesService');
 
         try{
-            $result = $rates->fetch($date);
+            $result = $rates->fetchFromDB($date);
             $statusCode = 200;
         }catch (\Exception $ex) {
             $result = ['error' => $ex->getMessage()];
