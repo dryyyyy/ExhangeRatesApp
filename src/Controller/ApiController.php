@@ -16,11 +16,13 @@ class ApiController extends Controller
 
         try{
             $result = $rates->fetch($date);
+            $statusCode = 200;
         }catch (\Exception $ex) {
             $result = ['error' => $ex->getMessage()];
+            $statusCode = 500;
         }
 
-        $response = new JsonResponse($result, 200, [], true);
+        $response = new JsonResponse($result, $statusCode, [], true);
 
         return $response;
     }

@@ -37,7 +37,7 @@ services:
         $from: '%app.currency_from%'
         $to: '%app.currency_to%'
         $entityManager: "@doctrine.orm.entity_manager"
-#        $serializer: "@symfony.component.serializer"
+#        $serializer: ""
 #      calls:
 #        - method: fetchData
 #          arguments:

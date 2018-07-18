@@ -29,7 +29,7 @@ class ExchangeRate
     /**
      * @ORM\Column(type="float")
      */
-    private $ratio;
+    private $value;
 
     /**
      * @ORM\Column(type="string")
@@ -82,16 +82,16 @@ class ExchangeRate
     /**
      * @return float
      */
-    public function getRatio(){
-        return$this->ratio;
+    public function getValue(){
+        return$this->value;
     }
 
     /**
-     * @param $ratio
+     * @param $value
      * @return $this
      */
-    public function setRatio($ratio){
-        $this->ratio = $ratio;
+    public function setValue($value){
+        $this->value = $value;
 
         return $this;
     }

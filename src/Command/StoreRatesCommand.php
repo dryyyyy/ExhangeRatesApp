@@ -14,6 +14,10 @@ class StoreRatesCommand extends ContainerAwareCommand
 
     private $rates;
 
+    /**
+     * StoreRatesCommand constructor.
+     * @param ExRatesService $rates
+     */
     public function __construct(ExRatesService $rates)
     {
         $this->rates = $rates;
@@ -21,11 +25,20 @@ class StoreRatesCommand extends ContainerAwareCommand
         parent::__construct();
     }
 
+    /**
+     *
+     */
     protected function configure()
     {
         $this->setDescription('Fetches current Exchange Rates from CBR and RBC and stores the average value in a DataBase');
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|null|void
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
@@ -34,7 +47,7 @@ class StoreRatesCommand extends ContainerAwareCommand
         try{
             $result = $this->rates->fetchData();
         } catch (\Exception $ex) {
-            $result = ['error' => $ex->getMessage()];
+            throw $ex;
         }
 
         $result->sendTodaysRatesToDB();
