@@ -5,7 +5,7 @@ parameters:
 
     app.currency_from: 'EUR'
     app.currency_to: 'RUR'
-    app.attempts: 50
+    app.attempts: 10
 
 services:
     # default configuration for services in *this* file
@@ -36,9 +36,13 @@ services:
       arguments:
         $from: '%app.currency_from%'
         $to: '%app.currency_to%'
-        $entityManager: "@doctrine.orm.entity_manager"
-#        $serializer: ""
-#      calls:
-#        - method: fetchData
-#          arguments:
-#            - '%app.attempts%'
+
+    App\Service\RbcSDK:
+          public: true
+          arguments:
+            $attempts: '%app.attempts%'
+
+    App\Service\CbrSDK:
+          public: true
+          arguments:
+            $attempts: '%app.attempts%'

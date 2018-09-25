@@ -10,6 +10,12 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  */
 class RbcSDK implements BankSDK{
 
+    private $attempts;
+
+    public function __construct(int $attempts) {
+        $this->attempts = $attempts;
+    }
+
     /**
      * @param string $from
      * @param string $to
@@ -17,18 +23,18 @@ class RbcSDK implements BankSDK{
      * @return float
      * @throws Exception
      */
-    public function fetch(string $from, string $to, int $attempts): float
+    public function fetch(string $from, string $to): float
     {
         $apiUrl = 'https://cash.rbc.ru/cash/json/converter_currency_rate/?currency_from=' . $from . '&currency_to=' . $to . '&source=cbrf&sum=1&date=';
         $exchangeRate = null;
-        for ($i = 0; $i < $attempts; $i++){
+        for ($i = 0; $i < $this->attempts; $i++){
             if ($jsonString = file_get_contents($apiUrl)){
                 $exchangeRate = json_decode($jsonString)->data->rate1;
                 break;
             }
         }
 
-        if($attempts == $i){
+        if($this->attempts == $i){
             throw new Exception('Cannot fetch data from' . $apiUrl);
         }
 

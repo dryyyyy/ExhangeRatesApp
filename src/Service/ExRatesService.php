@@ -2,6 +2,7 @@
 namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use function Sodium\add;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use App\Entity\ExchangeRate;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -14,10 +15,7 @@ class ExRatesService {
 
     private $from = null;
     private $to = null;
-    private $cbrExchangeRate = null;
-    private $rbcExchangeRate = null;
-    private $entityManager;
-    private $serializer;
+    private $sources = [];
 
     /**
      * ExRatesService constructor.
@@ -26,81 +24,44 @@ class ExRatesService {
      * @param EntityManagerInterface $entityManager
      * @param SerializerInterface $serializer
      */
-    public function __construct(string $from,
-                                string $to,
-                                EntityManagerInterface $entityManager,
-                                SerializerInterface $serializer)
-    {
+    public function __construct(string $from, string $to) {
         if ($from === $to) {
             throw new Exception('There is no point in finding ratio of the same currency, it will always be 1!');
         }
 
         $this->from = $from;
         $this->to = $to;
-        $this->entityManager = $entityManager;
-        $this->serializer = $serializer;
+    }
+
+    public function addSource(BankSDK ...$sources){
+        foreach ($sources as $source) {
+            $this->sources[] = $source;
+        }
+    }
+
+    public function getFrom(){
+        return $this->from;
+    }
+
+    public function getTo(){
+        return $this->to;
     }
 
     /**
+     * @param BankSDK $source1
+     * @param BankSDK $source2
      * @param int $attempts
      * @return $this
      */
-    public function fetchData($attempts = 10){
-
-        $cbrObj = new CbrSDK();
-        $rbcObj = new RbcSDK();
-
-        $this->cbrExchangeRate = $cbrObj->fetch($this->from, $this->to, $attempts);
-        $this->rbcExchangeRate = $rbcObj->fetch($this->from, $this->to, $attempts);
-
-        return $this;
-    }
-
-    /**
-     * @return float|int
-     */
     public function getAverage(){
-        return number_format(($this->rbcExchangeRate + $this->cbrExchangeRate) / 2, 4);
+
+        $sum = 0;
+        $sourcesLength = count($this->sources);
+        for ($i = 0; $i < $sourcesLength; $i++) {
+            $sum += $this->sources[$i]->fetch($this->from, $this->to);
+        }
+
+        return number_format($sum / $sourcesLength, 4);
     }
 
-    /**
-     * @return float
-     */
-    public function getCbrExchangeRate(){
-        return $this->cbrExchangeRate;
-    }
-
-    /**
-     * @return float
-     */
-    public function getRbcExchangeRate(){
-        return $this->rbcExchangeRate;
-    }
-
-    /**
-     *
-     */
-    public function sendTodaysRatesToDB(){
-        $exchangeRate = new ExchangeRate();
-        $exchangeRate->setFromCurrency($this->from);
-        $exchangeRate->setToCurrency($this->to);
-        $exchangeRate->setValue($this->getAverage());
-        $exchangeRate->setDate(date("d-m-Y"));
-
-        $this->entityManager->persist($exchangeRate);
-        $this->entityManager->flush();
-
-        return $this;
-    }
-
-    /**
-     * @param $date
-     * @return bool|float|int|string
-     */
-    public function fetchFromDB($date){
-        $repository = $this->entityManager->getRepository(ExchangeRate::class);
-        $item = $repository->findOneBy(['date' => $date]);
-        $jsonContent = $this->serializer->serialize($item, 'json');
-        return $jsonContent;
-    }
 }

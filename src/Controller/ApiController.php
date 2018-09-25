@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\ExchangeRate;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -10,20 +11,11 @@ class ApiController extends Controller
 {
     /**
      * @Route("/api/{date}", name="item")
+     * @param $date
+     * @return JsonResponse
      */
     public function showItem($date){
-        $rates = $this->get('App\Service\ExRatesService');
-
-        try{
-            $result = $rates->fetchFromDB($date);
-            $statusCode = 200;
-        }catch (\Exception $ex) {
-            $result = ['error' => $ex->getMessage()];
-            $statusCode = 500;
-        }
-
-        $response = new JsonResponse($result, $statusCode, [], true);
-
-        return $response;
+        $result = $this->getDoctrine()->getRepository(ExchangeRate::class)->findOneBy(['date' => $date]);
+        return $this->json($result);
     }
 }

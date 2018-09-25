@@ -9,17 +9,23 @@ use Symfony\Component\Config\Definition\Exception\Exception;
  */
 class CbrSDK implements BankSDK{
 
+    private $attempts;
+
+    public function __construct(int $attempts) {
+        $this->attempts = $attempts;
+    }
+
     /**
      * @param string $from
      * @param string $to
      * @param int $attempts
      * @return float
      */
-    public function fetch(string $from, string $to, int $attempts): float
+    public function fetch(string $from, string $to): float
     {
         $apiUrl = 'http://www.cbr.ru/scripts/XML_daily_eng.asp?date_req=' . date("d/m/Y");
         $exchangeRate = null;
-        for ($i = 0; $i < $attempts; $i++){
+        for ($i = 0; $i < $this->attempts; $i++){
             if ($tmpXml = file_get_contents($apiUrl)){
                 $tmpXml = simplexml_load_string($tmpXml);
 
@@ -44,7 +50,7 @@ class CbrSDK implements BankSDK{
             }
         }
 
-        if($attempts == $i){
+        if($this->attempts == $i){
             throw new Exception('Cannot fetch data from' . $apiUrl);
         }
 

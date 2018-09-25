@@ -2,8 +2,14 @@
 
 namespace App\Command;
 
+use App\Entity\ExchangeRate;
+use App\Service\BankSDK;
+use App\Service\CbrSDK;
 use App\Service\ExRatesService;
+use App\Service\RbcSDK;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -12,15 +18,21 @@ class StoreRatesCommand extends ContainerAwareCommand
 {
     protected static $defaultName = 'app:store_rates';
 
-    private $rates;
+
+    private $em;
+    private $source1;
+    private $source2;
 
     /**
      * StoreRatesCommand constructor.
      * @param ExRatesService $rates
      */
-    public function __construct(ExRatesService $rates)
+    public function __construct(EntityManagerInterface $em, CbrSDK $source1, RbcSDK $source2)
     {
-        $this->rates = $rates;
+
+        $this->em = $em;
+        $this->source1 = $source1;
+        $this->source2 = $source2;
 
         parent::__construct();
     }
@@ -30,7 +42,10 @@ class StoreRatesCommand extends ContainerAwareCommand
      */
     protected function configure()
     {
-        $this->setDescription('Fetches current Exchange Rates from CBR and RBC and stores the average value in a DataBase');
+        $this
+            ->setDescription('Fetches current Exchange Rates from CBR and RBC and stores the average value in a DataBase')
+            ->addArgument('from_currency', InputArgument::OPTIONAL, 'convert from this currency')
+            ->addArgument('to_currency', InputArgument::OPTIONAL, 'convert to this currency');
     }
 
     /**
@@ -43,14 +58,35 @@ class StoreRatesCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        $this->rates->fetchData();
         try{
-            $result = $this->rates->fetchData();
+
+            if(strlen($input->getArgument('from_currency')) == 3 && strlen($input->getArgument('to_currency')) == 3) {
+                $io->writeln('Arguments passed, using arguments values.');
+                $arg1 = $input->getArgument('from_currency');
+                $arg2 = $input->getArgument('to_currency');
+
+            } else {
+                $io->writeln('No arguments or incorrect arguments passed (ABC-like string expected), using values from the config.');
+                $arg1 = $this->getContainer()->getParameter('app.currency_from');
+                $arg2 = $this->getContainer()->getParameter('app.currency_to');
+            }
+
+            $rates = new ExRatesService($arg1, $arg2);
+            $rates->addSource($this->source1, $this->source2);
+            $average = $rates->getAverage();
+
         } catch (\Exception $ex) {
             throw $ex;
         }
 
-        $result->sendTodaysRatesToDB();
+        $exchangeRate = new ExchangeRate();
+        $exchangeRate->setFromCurrency($rates->getFrom());
+        $exchangeRate->setToCurrency($rates->getTo());
+        $exchangeRate->setValue($average);
+        $exchangeRate->setDate(date("d-m-Y"));
+
+        $this->em->persist($exchangeRate);
+        $this->em->flush();
 
         $io->success('New values have been added to DB.');
     }
