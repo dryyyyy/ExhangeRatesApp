@@ -41,14 +41,16 @@ class ExchangeRate
     /**
      * @return integer
      */
-    public function getId(){
+    public function getId()
+    {
         return $this->id;
     }
 
     /**
      * @return string
      */
-    public function getFromCurrency(){
+    public function getFromCurrency()
+    {
         return $this->fromCurrency;
     }
 
@@ -56,7 +58,8 @@ class ExchangeRate
      * @param $currency
      * @return $this
      */
-    public function setFromCurrency($currency){
+    public function setFromCurrency($currency)
+    {
         $this->fromCurrency = $currency;
 
         return $this;
@@ -65,7 +68,8 @@ class ExchangeRate
     /**
      * @return string
      */
-    public function getToCurrency(){
+    public function getToCurrency()
+    {
         return $this->toCurrency;
     }
 
@@ -73,7 +77,8 @@ class ExchangeRate
      * @param $currecy
      * @return $this
      */
-    public function setToCurrency($currency){
+    public function setToCurrency($currency)
+    {
         $this->toCurrency = $currency;
 
         return $this;
@@ -82,7 +87,8 @@ class ExchangeRate
     /**
      * @return float
      */
-    public function getValue(){
+    public function getValue()
+    {
         return$this->value;
     }
 
@@ -90,7 +96,8 @@ class ExchangeRate
      * @param $value
      * @return $this
      */
-    public function setValue($value){
+    public function setValue($value)
+    {
         $this->value = $value;
 
         return $this;
@@ -99,7 +106,8 @@ class ExchangeRate
     /**
      * @return mixed
      */
-    public function getDate(){
+    public function getDate()
+    {
         return $this->date;
     }
 
@@ -107,7 +115,8 @@ class ExchangeRate
      * @param $date
      * @return $this
      */
-    public function setDate($date){
+    public function setDate($date)
+    {
         $this->date = $date;
 
         return $this;

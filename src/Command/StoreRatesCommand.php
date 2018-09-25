@@ -3,7 +3,6 @@
 namespace App\Command;
 
 use App\Entity\ExchangeRate;
-use App\Service\BankSDK;
 use App\Service\CbrSDK;
 use App\Service\ExRatesService;
 use App\Service\RbcSDK;
@@ -25,7 +24,9 @@ class StoreRatesCommand extends ContainerAwareCommand
 
     /**
      * StoreRatesCommand constructor.
-     * @param ExRatesService $rates
+     * @param EntityManagerInterface $em
+     * @param CbrSDK $source1
+     * @param RbcSDK $source2
      */
     public function __construct(EntityManagerInterface $em, CbrSDK $source1, RbcSDK $source2)
     {
@@ -37,13 +38,10 @@ class StoreRatesCommand extends ContainerAwareCommand
         parent::__construct();
     }
 
-    /**
-     *
-     */
     protected function configure()
     {
         $this
-            ->setDescription('Fetches current Exchange Rates from CBR and RBC and stores the average value in a DataBase')
+            ->setDescription('Fetches current Exchange Rates and stores the average value in a DataBase')
             ->addArgument('from_currency', InputArgument::OPTIONAL, 'convert from this currency')
             ->addArgument('to_currency', InputArgument::OPTIONAL, 'convert to this currency');
     }
@@ -58,13 +56,11 @@ class StoreRatesCommand extends ContainerAwareCommand
     {
         $io = new SymfonyStyle($input, $output);
 
-        try{
-
-            if(strlen($input->getArgument('from_currency')) == 3 && strlen($input->getArgument('to_currency')) == 3) {
+        try {
+            if (strlen($input->getArgument('from_currency')) == 3 && strlen($input->getArgument('to_currency')) == 3) {
                 $io->writeln('Arguments passed, using arguments values.');
                 $arg1 = $input->getArgument('from_currency');
                 $arg2 = $input->getArgument('to_currency');
-
             } else {
                 $io->writeln('No arguments or incorrect arguments passed (ABC-like string expected), using values from the config.');
                 $arg1 = $this->getContainer()->getParameter('app.currency_from');
@@ -74,7 +70,6 @@ class StoreRatesCommand extends ContainerAwareCommand
             $rates = new ExRatesService($arg1, $arg2);
             $rates->addSource($this->source1, $this->source2);
             $average = $rates->getAverage();
-
         } catch (\Exception $ex) {
             throw $ex;
         }

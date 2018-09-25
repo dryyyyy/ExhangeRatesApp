@@ -11,8 +11,8 @@ use Symfony\Component\Serializer\SerializerInterface;
  * Class ExRatesService
  * @package App\Service
  */
-class ExRatesService {
-
+class ExRatesService
+{
     private $from = null;
     private $to = null;
     private $sources = [];
@@ -21,10 +21,9 @@ class ExRatesService {
      * ExRatesService constructor.
      * @param string $from
      * @param string $to
-     * @param EntityManagerInterface $entityManager
-     * @param SerializerInterface $serializer
      */
-    public function __construct(string $from, string $to) {
+    public function __construct(string $from, string $to)
+    {
         if ($from === $to) {
             throw new Exception('There is no point in finding ratio of the same currency, it will always be 1!');
         }
@@ -33,30 +32,34 @@ class ExRatesService {
         $this->to = $to;
     }
 
-    public function addSource(BankSDK ...$sources){
+    /**
+     * @param BankSDK ...$sources
+     */
+    public function addSource(BankSDK ...$sources)
+    {
         foreach ($sources as $source) {
             $this->sources[] = $source;
         }
     }
 
-    public function getFrom(){
+    public function getFrom()
+    {
         return $this->from;
     }
 
-    public function getTo(){
+    public function getTo()
+    {
         return $this->to;
     }
 
     /**
-     * @param BankSDK $source1
-     * @param BankSDK $source2
-     * @param int $attempts
-     * @return $this
+     * @return float
      */
-    public function getAverage(){
-
+    public function getAverage() : float
+    {
         $sum = 0;
         $sourcesLength = count($this->sources);
+
         for ($i = 0; $i < $sourcesLength; $i++) {
             $sum += $this->sources[$i]->fetch($this->from, $this->to);
         }

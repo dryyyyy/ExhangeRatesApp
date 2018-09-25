@@ -14,7 +14,8 @@ class ApiController extends Controller
      * @param $date
      * @return JsonResponse
      */
-    public function showItem($date){
+    public function showItem($date)
+    {
         $result = $this->getDoctrine()->getRepository(ExchangeRate::class)->findOneBy(['date' => $date]);
         return $this->json($result);
     }
