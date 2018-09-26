@@ -1,11 +1,7 @@
 <?php
 namespace App\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
-use function Sodium\add;
 use Symfony\Component\Config\Definition\Exception\Exception;
-use App\Entity\ExchangeRate;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * Class ExRatesService
@@ -40,16 +36,6 @@ class ExRatesService
         foreach ($sources as $source) {
             $this->sources[] = $source;
         }
-    }
-
-    public function getFrom()
-    {
-        return $this->from;
-    }
-
-    public function getTo()
-    {
-        return $this->to;
     }
 
     /**

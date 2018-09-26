@@ -75,8 +75,8 @@ class StoreRatesCommand extends ContainerAwareCommand
         }
 
         $exchangeRate = new ExchangeRate();
-        $exchangeRate->setFromCurrency($rates->getFrom());
-        $exchangeRate->setToCurrency($rates->getTo());
+        $exchangeRate->setFromCurrency($arg1);
+        $exchangeRate->setToCurrency($arg2);
         $exchangeRate->setValue($average);
         $exchangeRate->setDate(date("d-m-Y"));
 
