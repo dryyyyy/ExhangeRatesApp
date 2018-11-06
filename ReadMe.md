@@ -39,3 +39,13 @@ php bin/console app:store_rates USD RUR
 ```angular2html
 localhost/api/01-01-2001
 ``` 
+Пример вывода данных api:
+```angular2html
+{
+    id: 67,
+    fromCurrency: "EUR",
+    toCurrency: "RUR",
+    value: 74.4953,
+    date: "06-11-2018"
+}
+```
