@@ -13,6 +13,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+/**
+ * Class StoreRatesCommand
+ * @package App\Command
+ */
 class StoreRatesCommand extends ContainerAwareCommand
 {
     protected static $defaultName = 'app:store_rates';
