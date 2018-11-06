@@ -9,12 +9,12 @@ https://www.cbr.ru/development/SXML/
 
 https://cash.rbc.ru/cash/json/converter_currency_rate/?currency_from=USD&currency_to=RUR&source=cbrf&sum=1&date=
 
-###С чего начать
+### С чего начать
 ```angular2html
 $ git clone https://github.com/dryyyyy/ExhangeRatesApp.git
 ```
 
-###Пример использования
+### Пример использования
 Сперва необходимо получить значения и положить их в БД командой ниже:
 ```angular2html
 php bin/console app:store_rates
